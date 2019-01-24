@@ -3,6 +3,8 @@ branches:
     - master
     - develop
 language: java
+services:
+  - docker
 jdk:
   - oraclejdk8
 jobs:
