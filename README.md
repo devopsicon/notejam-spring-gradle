@@ -28,3 +28,7 @@ Application can be launched for local use assuming there is a MySQL database lik
 docker run -it --env-file ./.env <build_hash/tagname>
 
 
+* Scalability Controls *
+Variables.tf controls the app_count variable which is by default at 2 that controls the number of instances of notejam application.
+MYSQL variables (instance class and storage size) are adjustable via main.tf 
+

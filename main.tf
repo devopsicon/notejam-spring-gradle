@@ -1,28 +1,14 @@
+# Fetch AZs in the current region
+data "aws_availability_zones" "all" {}
+
 provider "aws" {
   region = "ca-central-1"
 }
-
-# Fetch AZs in the current region
-data "aws_availability_zones" "all" {}
 
 variable "server_port" {
   default = 8080
   description = "The port the server will use for HTTP requests"
 }
-
-resource "aws_db_instance" "mysql" {
-  allocated_storage    = 10
-  engine               = "mysql"
-  engine_version       = "8.0.13"
-  instance_class       = "db.t2.micro"
-  name                 = "notejam"
-  username             = "notejam"
-  password             = "notejam1234"
-  backup_retention_period = 5
-  backup_window = "07:00-09:00"
-  enabled_cloudwatch_logs_exports = "general"
-}
-
 
 ### Network
 
@@ -142,17 +128,21 @@ resource "aws_security_group" "ecs_tasks" {
 ### ALB
 
 resource "aws_alb" "main" {
-  name            = "tf-ecs-chat"
+  name            = "tf-ecs-notejam"
   subnets         = ["${aws_subnet.public.*.id}"]
   security_groups = ["${aws_security_group.lb.id}"]
 }
 
+# health check changed as 302 was being returned
 resource "aws_alb_target_group" "app" {
-  name        = "tf-ecs-chat"
+  name        = "tf-ecs-notejam"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = "${aws_vpc.main.id}"
   target_type = "ip"
+  health_check {
+    matcher = "200,202,302"
+  }
 }
 
 # Redirect all traffic from the ALB to the target group
@@ -173,12 +163,15 @@ resource "aws_ecs_cluster" "main" {
   name = "tf-ecs-cluster"
 }
 
+
 resource "aws_ecs_task_definition" "app" {
   family                   = "app"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "${var.fargate_cpu}"
   memory                   = "${var.fargate_memory}"
+  execution_role_arn       = "${aws_iam_role.ecsTaskExecutionRole.arn}"
+
 
   container_definitions = <<DEFINITION
 [
@@ -197,14 +190,38 @@ resource "aws_ecs_task_definition" "app" {
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-region": ${var.aws_region},
-        "awslogs-group": "notejam",
-        "awslogs-stream-prefix": "complete-ecs"
+          "awslogs-region": "${var.aws_region}",
+          "awslogs-group": "notejam",
+          "awslogs-stream-prefix": "complete-ecs"
       }
-    }
+    },
+      "environment" : [
+        {
+          "name": "JDBC_URL",
+          "value": "jdbc:mysql://${aws_db_instance.mysql.address}:3306/${aws_db_instance.mysql.name}"
+        },
+        {
+          "name": "JDBC_USER",
+          "value": "${aws_db_instance.mysql.username}"
+        },
+        {
+          "name": "JDBC_PASSWORD",
+          "value": "${aws_db_instance.mysql.password}"
+        }
+      ]
   }
 ]
 DEFINITION
+}
+
+# Necessary for ECS logs to be available
+resource "aws_cloudwatch_log_group" "notejam" {
+  name = "notejam"
+
+  tags = {
+    Environment = "production"
+    Application = "notejam"
+  }
 }
 
 resource "aws_ecs_service" "main" {

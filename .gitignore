@@ -19,4 +19,7 @@ gradle-app.setting
 *.iml
 out/
 
-.terraform
+# terraform related
+.terraform/
+
+terraform*

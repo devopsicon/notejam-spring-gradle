@@ -3,5 +3,5 @@ output "alb_hostname" {
 }
 
 output "rds_ip" {
-  value = "${}"
+  value = "${aws_db_instance.mysql.address}"
 }
