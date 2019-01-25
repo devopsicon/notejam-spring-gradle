@@ -23,6 +23,6 @@ public class PerformanceTest {
         logger.error(url);
         ValidatableResponse response = given().when().get(url)
                 .then();
-        response.time(lessThan(1000L));
+        response.time(lessThan(3000L));
     }
 }

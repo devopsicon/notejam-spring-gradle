@@ -20,6 +20,7 @@ resource "aws_db_instance" "mysql" {
   password             = "notejam1234"
   backup_retention_period = 5
   backup_window = "07:00-09:00"
+  enabled_cloudwatch_logs_exports = "general"
 }
 
 
@@ -192,7 +193,15 @@ resource "aws_ecs_task_definition" "app" {
         "containerPort": ${var.app_port},
         "hostPort": ${var.app_port}
       }
-    ]
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-region": ${var.aws_region},
+        "awslogs-group": "notejam",
+        "awslogs-stream-prefix": "complete-ecs"
+      }
+    }
   }
 ]
 DEFINITION
