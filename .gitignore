@@ -19,5 +19,4 @@ gradle-app.setting
 *.iml
 out/
 
-
 .terraform

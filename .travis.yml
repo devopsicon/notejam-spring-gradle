@@ -22,7 +22,7 @@ jobs:
         - ../../../cc-test-reporter upload-coverage -d
     - stage: performance tests
       before_script:
-        - docker-compose up -d
+        - ./gradlew --info -Dspring.profiles.active=perftest bootRun &
         - sleep 30
       script:
-        - ./gradlew perfTest
+        - ./gradlew --info perfTest
