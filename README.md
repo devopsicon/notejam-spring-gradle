@@ -5,16 +5,26 @@ Notejam
 
 *Performance Testing Instructions*
 
-Insert an environmental variable called TEST_URL pointing to actual deployment and run ./gradlew perfTest
+Insert an environmental variable called TEST_URL pointing to actual deployment and run 
+* ./gradlew perfTest
 
 *Unit and Integration Testing Instructions*
 
-./gradlew test
+Unit and Integration test is in-built in the project, can be used via
+* ./gradlew test
 
 *Delivery Instructions*
 
+**Java Build**
+As a gradle application, ./gradlew build will create the Jar file inside build/libs folder.
+
+**Docker**
 Application must be packaged as a docker using the DOCKERFILE and pushed to appropriate registry with correct tags
- 
+
+Following commands accomplish that:
+- docker build .
+- docker tag <build#> danielyinanc/notejam-spring
+- docker push danielyinanc/notejam-spring
 
 *Deployment Instructions*
 
@@ -31,9 +41,13 @@ docker run -it --env-file ./.env <build_hash/tagname>
 
 **Cloud Deployment**
 
-terraform init
-terraform plan
-terraform apply 
+Version is controlled via the variables.tf, there is a variable called app_image which is in charge of docker 
+image and the version.
+
+Commands to follow in sequence are:
+- terraform init
+- terraform plan
+- terraform apply 
 
 ***Scalability Controls***
 

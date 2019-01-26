@@ -26,3 +26,10 @@ jobs:
         - sleep 30
       script:
         - ./gradlew --info perfTest
+    - stage: build docker image
+      script:
+        - docker build -t danielyinanc/notejam-spring .
+        - docker push danielyinanc/notejam-spring
+    - stage: deploy
+      script:
+        - ./deploy.sh
