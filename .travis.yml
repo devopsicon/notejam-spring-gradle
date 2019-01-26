@@ -28,9 +28,7 @@ jobs:
         - ./gradlew --info perfTest
     - stage: build docker image
       script:
-        - docker build -t danielyinanc/notejam-spring .
-        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        - docker push danielyinanc/notejam-spring
+        - ./build.sh
     - stage: deploy
       before_script:
         - ./install_terraform.sh
