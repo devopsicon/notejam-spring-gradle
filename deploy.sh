@@ -4,7 +4,8 @@
 
 if [[ $TRAVIS_BRANCH == 'master' ]]
 then
-    ./terraform-linux init
-    ./terraform-linux validate
-    ./terraform-linux apply -auto-approve
+    ./terraform init
+    ./terraform validate
+    ./terraform plan
+    ./terraform apply -auto-approve
 fi
