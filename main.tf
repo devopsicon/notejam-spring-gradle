@@ -1,6 +1,16 @@
 # Fetch AZs in the current region
 data "aws_availability_zones" "all" {}
 
+
+#backend make sure to change bucket name
+terraform {
+  backend "s3" {
+    bucket = "rainmakerapps"
+    key    = "terraform/notejam/terraform.tfstate"
+    region = "ca-central-1"
+  }
+}
+
 provider "aws" {
   region = "ca-central-1"
 }
